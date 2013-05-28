@@ -31,7 +31,7 @@ motor_nut_depth = 5;
 filament_radius = 1.5;
 filament_compression = 0.25;
 
-carriage_bracket_offset = 8;
+carriage_bracket_offset = 12;
 carriage_bracket_height = 10;
 
 mk7_filament_x = -(mk7_drive_spec[drive_wheel_hob_radius]-filament_compression/2+filament_radius);
@@ -41,7 +41,9 @@ drive_bearing_radius = (drive_bearing[bearing_body_diameter]+drive_bearing_clear
 drive_bearing_length = drive_bearing[bearing_length];
 
 drive_bearing_min = [-drive_bearing_radius, -drive_bearing_radius, 1];
-drive_bearing_max = [drive_bearing_radius, drive_bearing_radius, drive_bearing_min[z]+drive_bearing_length];
+drive_bearing_max = [drive_bearing_radius, 
+						drive_bearing_radius, 
+						drive_bearing_min[z]+drive_bearing_length];
 drive_bearing_center = centerof(drive_bearing_min, drive_bearing_max);
 drive_bearing_size = sizeof(drive_bearing_min, drive_bearing_max);
 
@@ -51,8 +53,12 @@ drive_wheel_center = centerof(drive_wheel_min, drive_wheel_max);
 drive_wheel_size = sizeof(drive_wheel_min, drive_wheel_max);
 
 drive_clearance_radius = mk7_drive_spec[drive_wheel_radius]+2;
-drive_clearance_min = [-drive_clearance_radius, -drive_clearance_radius, drive_bearing_max[z]];
-drive_clearance_max = [drive_clearance_radius, drive_clearance_radius, drive_clearance_min[z]++mk7_drive_spec[drive_wheel_length]+6];
+drive_clearance_min = [-drive_clearance_radius, 
+						-drive_clearance_radius, 
+						drive_bearing_max[z]];
+drive_clearance_max = [drive_clearance_radius, 
+						drive_clearance_radius, 
+						drive_clearance_min[z]++mk7_drive_spec[drive_wheel_length]+6];
 drive_clearance_center = centerof(drive_clearance_min, drive_clearance_max);
 drive_clearance_size = sizeof(drive_clearance_min, drive_clearance_max);
 
@@ -66,7 +72,7 @@ drive_bracket_min =
 
 drive_bracket_max = 
 	[50/2,
-	 drive_bracket_min[y]+22.5,
+	 drive_bracket_min[y]+21,
 	 drive_clearance_max[z]];
 
 drive_bracket_center = centerof(drive_bracket_min, drive_bracket_max);
@@ -99,7 +105,8 @@ nozzle_mount_center = [carriage_bracket_min[x]+nozzle_mount_length/2, filament_c
 
 idler_bolt_offset = [20, 0, 4.5];
 
-oneup();
+//oneup();
+display();
 
 *%annotations();
 
@@ -111,15 +118,6 @@ rotate([0, 0, -90])
 
 module oneup()
 {
-	/*
-	translate([0,60,40])
-    {
-		gearmotor();
-		translate([0, 0, 10]) gearmotor_screws(10);
-	}
-	*/
-	
-	
 	extruder_body();
 	
 	
@@ -129,7 +127,7 @@ module oneup()
 		idler_bracket();
 	}
 	
-	translate([2,50,0])
+	translate([2,48,0])
 	{
 		idler_bracket(1); //ask for nut holders
 	}
@@ -151,6 +149,33 @@ module twoup()
 	}
 }
 
+module display()
+{
+	extruder_body();
+	
+	translate([2,-22.5,-14])
+	{
+		rotate([-90,0,0])
+		idler_bracket();
+	}
+	
+	translate([-2,23,-14])
+	{
+		rotate([90,180,0])
+		idler_bracket(1);
+	}
+	
+	rotate([180,0,0])
+	{
+		translate([0,-7,-22])
+		{
+			gearmotor();
+			translate([0, 0, 10]) gearmotor_screws(10);
+		}
+	}
+}
+
+/*** the extruder bit ***/
 
 module extruder_body()
 {
@@ -191,15 +216,16 @@ module extruder_body_solid()
 module extruder_body_void()
 {
 	// Drive bearing clearance
-	translate(drive_bearing_center+[0, 0, .05])
-	cylinder(h=drive_bearing_size[z]+.1, r=drive_bearing_size[x]/2, center=true);
+	//translate(drive_bearing_center+[0, 0, .05])
+	//cylinder(h=drive_bearing_size[z]+.1, r=drive_bearing_size[x]/2, center=true);
 
-	translate(drive_bearing_center)
-	cylinder(h=drive_bearing_size[z]+layer_height*2, r=drive_bearing_size[x]/2-1, $fn=40, center=true);
+	//translate(drive_bearing_center)
+	//cylinder(h=drive_bearing_size[z]+layer_height*2, r=drive_bearing_size[x]/2-1, $fn=40, center=true);
 
 	// Drive wheel clearance
 	translate(drive_clearance_center+[0, 0, .05])
-	cylinder(h=drive_clearance_size[z]+.1, r=drive_clearance_size[x]/2, center=true);
+	cylinder(h=drive_clearance_size[z]+.1, 
+				r=drive_clearance_size[x]/2, center=true);
 
 	translate(drive_clearance_center+[0, 0, .05])
 	cylinder(h=drive_clearance_size[z]+layer_height*2, r=drive_bearing_size[x]/2+1, center=true);
@@ -260,14 +286,14 @@ module extruder_body_void()
 	
 	// Idler mounting holes.
 	render(convexity=4)
-	for (i=[-1, 1])
+	for (i=[-1, 1]) for(j=[-1, 1])
 	{
 		translate([filament_center[x]+idler_bolt_offset[x]*i, 
 					drive_bracket_center[y], 
-					filament_center[z]+idler_bolt_offset[z]])
+					filament_center[z]+idler_bolt_offset[z]*j])
 					
 		rotate([90,  0, 0])
-		hexylinder(h=drive_bracket_size[y]+.1, r=2, $fn=12, center=true);
+		hexylinder(h=drive_bracket_size[y]+.1+5, r=2, $fn=12, center=true);
 
 		/*
 		translate([filament_center[x]+idler_bolt_offset[x]*i, 
@@ -287,20 +313,23 @@ module extruder_body_void()
 					nozzle_mount_center[z]])
 		rotate([0, 90, 0])
 		rotate([90, 0, 90])
-		#hexylinder(h=carriage_bracket_height+.1+20, r=m3_diameter/2, $fn=12, center=true);
+		hexylinder(h=carriage_bracket_height+.1+20, r=m3_diameter/2, $fn=12, center=true);
 	}
 	
+	//j-head mounting holes
 	render(convexity=4)
 	for (i=[-1, 1])
 	{
 			translate([carriage_bracket_center[x], nozzle_mount_center[y]+i*25, nozzle_mount_center[z]])
 			rotate([0, 90, 0])
 			rotate([0, 0, 90])
-			#hexylinder(h=carriage_bracket_height+.1, r=m3_diameter/2, $fn=12, center=true);
+			hexylinder(h=carriage_bracket_height+.1, r=m3_diameter/2, $fn=12, center=true);
 	}
 
 
 }
+
+/*** the idler ***/
 
 idler_bracket_size = [19, 48, 12];
 idler_bracket_center = [0, 0, idler_bracket_size[z]/2];
@@ -367,14 +396,15 @@ module idler_bracket_void(nutHolder)
 			cylinder(h=2, r1=idler_bearing_radius-2, r2=idler_bearing_radius-1, center=true);
 	}
 
-	for (i=[-1, 1])
+	for (i=[-1, 1]) for(j=[-1,1])
 	{
-		translate(idler_bracket_center+[idler_bolt_offset[z]*0, 
+		translate(idler_bracket_center+[idler_bolt_offset[z]*j, 
 										idler_bolt_offset[x]*i, 0])
 		cylinder(h=idler_bracket_size[z]+.1, r=2, $fn=12, center=true);
+		
 		if(nutHolder == 1)
 		{
-			translate(idler_bracket_center+[idler_bolt_offset[z]*0, 
+			translate(idler_bracket_center+[idler_bolt_offset[z]*j, 
 												idler_bolt_offset[x]*i, -5])
 			cylinder(h=3, r=m3_nut_diameter/2, $fn=6, center=true);
 		}
@@ -414,6 +444,8 @@ module drive_wheel(drive_bolt_spec)
 	}
 }
 
+
+/*** makes a cube with rounded corners ***/
 smoothing_radius = 3;
 
 module smooth_cube(size, radius=smoothing_radius, smooth_axis=z)
