@@ -31,7 +31,7 @@ motor_nut_depth = 5;
 filament_radius = 1.5;
 filament_compression = 0.25;
 
-carriage_bracket_offset = 7;
+carriage_bracket_offset = 8;
 carriage_bracket_height = 10;
 
 mk7_filament_x = -(mk7_drive_spec[drive_wheel_hob_radius]-filament_compression/2+filament_radius);
@@ -80,7 +80,7 @@ idler_clearance_center = [idler_center[x], idler_center[y]+2, drive_bracket_cent
 idler_clearance_length = drive_bracket_size[z];
 idler_clearance_radius = idler_bearing_radius+1;
 
-carriage_bracket_length = 70;
+carriage_bracket_length = 60;
 carriage_bolt_spacing = 50;
 
 carriage_bracket_min = [drive_bracket_min[x], filament_center[y]-carriage_bracket_length/2, drive_bracket_min[z]];
@@ -111,20 +111,27 @@ rotate([0, 0, -90])
 
 module oneup()
 {
+	/*
 	translate([0,60,40])
     {
 		gearmotor();
 		translate([0, 0, 10]) gearmotor_screws(10);
 	}
+	*/
+	
+	
 	extruder_body();
-	translate([5,-5,0])
-	{
+	
+	
+	translate([2,0,0])
+	{	
+		
 		idler_bracket();
 	}
 	
-	translate([5,50,0])
+	translate([2,50,0])
 	{
-		idler_bracket();
+		idler_bracket(1); //ask for nut holders
 	}
 
 	/*
@@ -253,11 +260,11 @@ module extruder_body_void()
 	
 	// Idler mounting holes.
 	render(convexity=4)
-	for (i=[-1, 1]) for(j=[-1, 1])
+	for (i=[-1, 1])
 	{
 		translate([filament_center[x]+idler_bolt_offset[x]*i, 
 					drive_bracket_center[y], 
-					filament_center[z]+idler_bolt_offset[z]*j])
+					filament_center[z]+idler_bolt_offset[z]])
 					
 		rotate([90,  0, 0])
 		hexylinder(h=drive_bracket_size[y]+.1, r=2, $fn=12, center=true);
@@ -276,12 +283,23 @@ module extruder_body_void()
 	for (i=[-1, 1])
 	{
 		translate([carriage_bracket_center[x], 
-					nozzle_mount_center[y]+i*30, 
+					nozzle_mount_center[y]+i*15, 
 					nozzle_mount_center[z]])
 		rotate([0, 90, 0])
 		rotate([90, 0, 90])
-		hexylinder(h=carriage_bracket_height+.1+30, r=m3_diameter/2, $fn=12, center=true);
+		#hexylinder(h=carriage_bracket_height+.1+20, r=m3_diameter/2, $fn=12, center=true);
 	}
+	
+	render(convexity=4)
+	for (i=[-1, 1])
+	{
+			translate([carriage_bracket_center[x], nozzle_mount_center[y]+i*25, nozzle_mount_center[z]])
+			rotate([0, 90, 0])
+			rotate([0, 0, 90])
+			#hexylinder(h=carriage_bracket_height+.1, r=m3_diameter/2, $fn=12, center=true);
+	}
+
+
 }
 
 idler_bracket_size = [19, 48, 12];
@@ -291,7 +309,7 @@ idler_bracket_max = maxof(idler_bracket_center, idler_bracket_size);
 
 idler_wheel_center = [0, 0, 10];
 
-module idler_bracket()
+module idler_bracket(nutHolder)
 {
 	p1=print_orientation;
 	p2=1-print_orientation;
@@ -301,7 +319,7 @@ module idler_bracket()
 	difference()
 	{
 		idler_bracket_solid();
-		idler_bracket_void();
+		idler_bracket_void(nutHolder);
 	}
 }
 
@@ -317,7 +335,7 @@ module idler_bracket_solid()
 
 }
 
-module idler_bracket_void()
+module idler_bracket_void(nutHolder)
 {
 	bearing_void_length = idler_bearing_length+2;
 
@@ -349,9 +367,18 @@ module idler_bracket_void()
 			cylinder(h=2, r1=idler_bearing_radius-2, r2=idler_bearing_radius-1, center=true);
 	}
 
-	for (i=[-1, 1]) for (j=[-1, 1])
-		translate(idler_bracket_center+[idler_bolt_offset[z]*i, idler_bolt_offset[x]*j, 0])
+	for (i=[-1, 1])
+	{
+		translate(idler_bracket_center+[idler_bolt_offset[z]*0, 
+										idler_bolt_offset[x]*i, 0])
 		cylinder(h=idler_bracket_size[z]+.1, r=2, $fn=12, center=true);
+		if(nutHolder == 1)
+		{
+			translate(idler_bracket_center+[idler_bolt_offset[z]*0, 
+												idler_bolt_offset[x]*i, -5])
+			cylinder(h=3, r=m3_nut_diameter/2, $fn=6, center=true);
+		}
+	}
 }
 
 
