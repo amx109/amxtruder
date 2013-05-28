@@ -6,7 +6,7 @@ Infinity = 9001;
 module gearmotor() {
   translate([0, 7, 0]) {
     steel() cylinder(r = 12 / 2, h = 3);
-    translate([0, 0, 4]) stainless() render() intersection() {
+    translate([0, 0, 3]) stainless() render() intersection() {
       cylinder(r = 5 / 2, h = 14);
       union() {
         translate([0, 1, 0] * Infinity / -2 + [-2, 0, 4]) cube(Infinity);
