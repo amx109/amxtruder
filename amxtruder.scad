@@ -121,15 +121,15 @@ module oneup()
 	extruder_body();
 	
 	
-	translate([2,0,0])
+	translate([0,0,0])
 	{	
 		
-		idler_bracket();
+		$idler_bracket();
 	}
 	
-	translate([2,48,0])
+	translate([0,46,0])
 	{
-		idler_bracket(1); //ask for nut holders
+		$idler_bracket(1); //ask for nut holders
 	}
 
 	/*
@@ -151,26 +151,29 @@ module twoup()
 
 module display()
 {
-	extruder_body();
-	
-	translate([2,-22.5,-14])
+	rotate(90,0,0)
 	{
-		rotate([-90,0,0])
-		idler_bracket();
-	}
-	
-	translate([-2,23,-14])
-	{
-		rotate([90,180,0])
-		idler_bracket(1);
-	}
-	
-	rotate([180,0,0])
-	{
-		translate([0,-7,-22])
+		extruder_body();
+		
+		translate([2,-22.5,-14])
 		{
-			gearmotor();
-			translate([0, 0, 10]) gearmotor_screws(10);
+			rotate([-90,0,0])
+			idler_bracket();
+		}
+		
+		translate([-2,23,-14])
+		{
+			rotate([90,180,0])
+			idler_bracket(1);
+		}
+		
+		rotate([180,0,0])
+		{
+			translate([0,-7,-22])
+			{
+				gearmotor();
+				translate([0, 0, 10]) gearmotor_screws(10);
+			}
 		}
 	}
 }
@@ -222,13 +225,17 @@ module extruder_body_void()
 	//translate(drive_bearing_center)
 	//cylinder(h=drive_bearing_size[z]+layer_height*2, r=drive_bearing_size[x]/2-1, $fn=40, center=true);
 
-	// Drive wheel clearance
+	// Drive wheel clearance (height of motor axle+surrond is 17
 	translate(drive_clearance_center+[0, 0, .05])
 	cylinder(h=drive_clearance_size[z]+.1, 
 				r=drive_clearance_size[x]/2, center=true);
+	//echo("This is a cylinder with h=", drive_clearance_size[z]+.1, " and r=", drive_clearance_size[x]/2);
+
 
 	translate(drive_clearance_center+[0, 0, .05])
-	cylinder(h=drive_clearance_size[z]+layer_height*2, r=drive_bearing_size[x]/2+1, center=true);
+	cylinder(h=drive_clearance_size[z]+layer_height*2, 
+				r=drive_bearing_size[x]/2+1, center=true);
+	echo("The hobbed gear is h=", drive_clearance_size[z]+layer_height*2, " and r=", r=drive_bearing_size[x]/2+1);
 
 	//translate(drive_access_center+[0, 0, .05])
 	//#cube(drive_access_size+[0, 0, .1], center=true);
@@ -261,7 +268,7 @@ module extruder_body_void()
 
 	// Motor mounting holes
 	z1 = drive_bracket_min[z];
-	z2 = z1+5;
+	z2 = z1+1.5;
 	z3 = z2;
 	z4 = drive_bracket_max[z];
 	
@@ -319,11 +326,12 @@ module extruder_body_void()
 	//j-head mounting holes
 	render(convexity=4)
 	for (i=[-1, 1])
-	{
-			translate([carriage_bracket_center[x], nozzle_mount_center[y]+i*25, nozzle_mount_center[z]])
-			rotate([0, 90, 0])
-			rotate([0, 0, 90])
-			hexylinder(h=carriage_bracket_height+.1, r=m3_diameter/2, $fn=12, center=true);
+	{		
+		echo("nozzle info", nozzle_mount_center[y]);
+		translate([carriage_bracket_center[x], nozzle_mount_center[y]+i*25, nozzle_mount_center[z]])
+		rotate([0, 90, 0])
+		rotate([0, 0, 90])
+		hexylinder(h=carriage_bracket_height+.1, r=m3_diameter/2, $fn=12, center=true);
 	}
 
 

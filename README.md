@@ -2,7 +2,7 @@ amxtruder
 
 An extruder designed for a Prusa i3 and a lightweight motor reecived from one of the #reprap team
 
-te extruder design is based of off
+the extruder design is based on
 
 http://www.thingiverse.com/thing:24219
 
